@@ -31,7 +31,7 @@ The goals / steps of this project are the following:
 
 ####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
 
-You're reading it! and here is a link to my [project code](https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/Traffic_Sign_Classifier.ipynb)
+Here is a link to my [project code](https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/Traffic_Sign_Classifier.ipynb)
 
 ###Data Set Summary & Exploration
 
@@ -64,7 +64,7 @@ Also, I did not execute grayscaling since it just seems for me that we dispose t
 
 ####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-My final model is based on VGG16 (but fewer layer mainly because the input images are much smaller than original neural network) and is consisted of the following layers:
+My final model is based on VGG16 (but fewer layer because the input images are much smaller than original VGG16 neural network) and is consisted of the following layers:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
@@ -90,22 +90,24 @@ My final model is based on VGG16 (but fewer layer mainly because the input image
 | Fully connected		| 1024 to 256 									|
 | RELU					|												|
 | Fully connected		| 256  to 43 									|
-| Softmax				| etc.        									|
+| Softmax				| 	           									|
 
 
 ####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
 To train the model, I used an AdamOptimizer.
 Learning rate was 0.0001 which is low enough to gradually settle the model to the best parameters.
+
 Epoch was 350 which is about 15 times more than LeNet because I used a deeper neural network which is consisted of much more parameters inside and it takes time to tune all the parameters.
-Batch size was 256. I tried bigger batch sizes, however, it seems it does not contribute to higher precision, therefore, I settled the batch size to initial value.
+
+Batch size was 256. I tried bigger batch sizes, however, it seems it does not contribute to higher precision, therefore, I settled the batch size to the initial value.
 
 It took more than one hour to train my model even on my GTX1080.
 
 ####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of 95%
+* training set accuracy of 100%
 * validation set accuracy of 95% 
 * test set accuracy of 94%
 
@@ -114,22 +116,13 @@ However, I found that those small approaches does not contribute to higher the p
 
 Then I researched on the web and found that mimic famous model could realize better precision.
 
-I decided to mimic VGG16 network which is much deeper model than LeNet.
-I designed a network which is a deep but basic network without techniques such as dropout or multi-scale and trained it for several hundreds epochs.
-Then I found that it 
+I decided to mimic VGG16 network which is much deeper model than LeNet but not so deep as current state-of-the-art networks which require much more computing power.
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+I designed a network which is a deeper but basic network without techniques such as dropout or multi-scale and trained it for several hundreds epochs.
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
- 
+Then I found that it realizes an accuracy high enough to pass this project.
+
+I tried to implement gradual decreasing learning rate with tf.train.exponential_decay() to realize faster convergence and higher accuracy, however, with the function, the learning fails with bad accuracy.
 
 ###Test a Model on New Images
 
