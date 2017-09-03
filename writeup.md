@@ -29,7 +29,7 @@ The goals / steps of this project are the following:
 Here is a link to my [project code]
 (https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
 and its [html]
-(https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.html).
+(https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/report.html).
 
 
 ###Data Set Summary & Exploration
