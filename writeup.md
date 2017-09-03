@@ -18,10 +18,15 @@ The goals / steps of this project are the following:
 [image2]: ./examples/grayscale.jpg "Grayscaling"
 [image3]: ./examples/random_noise.jpg "Random Noise"
 [image4]: ./new_data/01.jpg "Traffic Sign 1"
+{: width="100px"}
 [image5]: ./new_data/02.jpg "Traffic Sign 2"
+{: width="100px"}
 [image6]: ./new_data/03.jpg "Traffic Sign 3"
+{: width="100px"}
 [image7]: ./new_data/04.jpg "Traffic Sign 4"
+{: width="100px"}
 [image8]: ./new_data/05.jpg "Traffic Sign 5"
+{: width="100px"}
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -31,7 +36,11 @@ The goals / steps of this project are the following:
 
 ####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
 
-Here is a link to my [project code](https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/Traffic_Sign_Classifier.ipynb)
+Here is a link to my [project code]
+(https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
+and its [html]
+(https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.html).
+
 
 ###Data Set Summary & Exploration
 
@@ -101,7 +110,7 @@ Learning rate was 0.0001 which is low enough to gradually settle the model to th
 
 Epoch was 350 which is about 15 times more than LeNet because I used a deeper neural network which is consisted of much more parameters inside and it takes time to tune all the parameters.
 
-Batch size was 256. I tried bigger batch sizes, however, it seems it does not contribute to higher precision, therefore, I settled the batch size to the initial value.
+Batch size was 256. I tried bigger batch sizes, however, it seems it does not contribute to achieve higher accuracy, therefore, I settled the batch size to the initial value.
 
 It took more than one hour to train my model even on my GTX1080.
 
@@ -157,4 +166,4 @@ The code for making predictions on my final model is located in the 11th cell of
 
 As shown in the cell, my classifier classified all the new images with 100% sure.
 
-That is probably because I chose too clean images for this assignment.
+That is probably because I chose too clean images for this problem.
