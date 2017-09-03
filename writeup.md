@@ -85,6 +85,7 @@ My final model is based on VGG16 (but fewer layer because the input images are m
 | RELU					|												|
 | Convolution 3x3     	| 1x1 stride, same padding, outputs 8x8x256 	|
 | RELU					|												|
+| Max pooling	      	| 2x2 stride,  outputs 4x4x256	 				|
 | Fully connected		| 4096 to 1024 									|
 | RELU					|												|
 | Fully connected		| 1024 to 256 									|
@@ -108,8 +109,8 @@ It took more than one hour to train my model even on my GTX1080.
 
 My final model results were:
 * training set accuracy of 100%
-* validation set accuracy of 95% 
-* test set accuracy of 94%
+* validation set accuracy of 94.5% 
+* test set accuracy of 93.8%
 
 First, I tried to fine tune LeNet model. For example, deepening each depth or adding one more layer.
 However, I found that those small approaches does not contribute to higher the precision but usually results in much worse result.
