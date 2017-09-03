@@ -17,16 +17,6 @@ The goals / steps of this project are the following:
 [image1]: ./rate_of_each_class.png "Visualization"
 [image2]: ./examples/grayscale.jpg "Grayscaling"
 [image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./new_data/01.jpg "Traffic Sign 1"
-{: width="100px"}
-[image5]: ./new_data/02.jpg "Traffic Sign 2"
-{: width="100px"}
-[image6]: ./new_data/03.jpg "Traffic Sign 3"
-{: width="100px"}
-[image7]: ./new_data/04.jpg "Traffic Sign 4"
-{: width="100px"}
-[image8]: ./new_data/05.jpg "Traffic Sign 5"
-{: width="100px"}
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -142,6 +132,12 @@ Here are five German traffic signs that I found on the web:
 
 ![alt text][image4] ![alt text][image5] ![alt text][image6] 
 ![alt text][image7] ![alt text][image8]
+
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/01.jpg?raw=true" width="100">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/02.jpg?raw=true" width="100">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/03.jpg?raw=true" width="100">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/04.jpg?raw=true" width="100">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/05.jpg?raw=true" width="100">
 
 The first image might be difficult to classify because there are lots of patterns in the background of the image.
 
