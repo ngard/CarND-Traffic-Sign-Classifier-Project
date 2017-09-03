@@ -130,14 +130,11 @@ I tried to implement gradual decreasing learning rate with tf.train.exponential_
 
 Here are five German traffic signs that I found on the web:
 
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
-
-<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/01.jpg?raw=true" width="100">
-<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/02.jpg?raw=true" width="100">
-<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/03.jpg?raw=true" width="100">
-<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/04.jpg?raw=true" width="100">
-<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/05.jpg?raw=true" width="100">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/01.jpg?raw=true" width="200px">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/02.jpg?raw=true" width="200px">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/03.jpg?raw=true" width="200px">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/04.jpg?raw=true" width="200px">
+<img src="https://github.com/ngard/CarND-Traffic-Sign-Classifier-Project/blob/master/new_data/05.jpg?raw=true" width="200px">
 
 The first image might be difficult to classify because there are lots of patterns in the background of the image.
 
