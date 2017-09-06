@@ -42,7 +42,7 @@ signs data set:
 * The size of training set is 34799.
 * The size of the validation set is 4410.
 * The size of test set is 12630.
-* The shape of a traffic sign image is 32.
+* The shape of a traffic sign image is 32(height)x32(width)x3(channel).
 * The number of unique classes/labels in the data set is 43.
 
 ####2. Include an exploratory visualization of the dataset.
@@ -63,7 +63,9 @@ Also, I did not execute grayscaling since it just seems for me that we dispose t
 
 ####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-My final model is based on VGG16 (but fewer layer because the input images are much smaller than original VGG16 neural network) and is consisted of the following layers:
+My final network is based on VGG16 with fewer layer because the input images are much smaller than original VGG16 neural network.
+Also, I added two dropout layers to alleviate overfitting.
+My network is consisted of the following layers:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
@@ -87,8 +89,10 @@ My final model is based on VGG16 (but fewer layer because the input images are m
 | Max pooling	      	| 2x2 stride,  outputs 4x4x256	 				|
 | Fully connected		| 4096 to 1024 									|
 | RELU					|												|
+| Dropout				| rate = 0.7									|
 | Fully connected		| 1024 to 256 									|
 | RELU					|												|
+| Dropout				| rate = 0.7									|
 | Fully connected		| 256  to 43 									|
 | Softmax				| 	           									|
 
@@ -96,20 +100,16 @@ My final model is based on VGG16 (but fewer layer because the input images are m
 ####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
 To train the model, I used an AdamOptimizer.
-Learning rate was 0.0001 which is low enough to gradually settle the model to the best parameters.
-
-Epoch was 350 which is about 15 times more than LeNet because I used a deeper neural network which is consisted of much more parameters inside and it takes time to tune all the parameters.
+Learning rate is initially 0.001 and exponentially decreased by 0.9 every 500 steps which allows the network to converge fastly (upto x10) and precisely. Thanks to decaying learning rate, only 60 epochs are enough to achieve good accuracy.
 
 Batch size was 256. I tried bigger batch sizes, however, it seems it does not contribute to achieve higher accuracy, therefore, I settled the batch size to the initial value.
-
-It took more than one hour to train my model even on my GTX1080.
 
 ####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
 * training set accuracy of 100%
-* validation set accuracy of 94.5% 
-* test set accuracy of 93.8%
+* validation set accuracy of 94.3% 
+* test set accuracy of 93.5%
 
 First, I tried to fine tune LeNet model. For example, deepening each depth or adding one more layer.
 However, I found that those small approaches does not contribute to higher the precision but usually results in much worse result.
@@ -122,7 +122,7 @@ I designed a network which is a deeper but basic network without techniques such
 
 Then I found that it realizes an accuracy high enough to pass this project.
 
-I tried to implement gradual decreasing learning rate with tf.train.exponential_decay() to realize faster convergence and higher accuracy, however, with the function, the learning fails with bad accuracy.
+I also implemented decaying learning rate with tf.train.exponential_decay() to realize faster convergence and higher accuracy and achieved faster learning time (upto x10).
 
 ###Test a Model on New Images
 
@@ -150,13 +150,10 @@ Here are the results of the prediction:
 | Speed limit (30km/h)		     		| Speed limit (30km/h)							|
 | Stop		  							| Stop		        							|
 
-
-The model was able to correctly guess all of the traffic signs, which gives an accuracy of 100%.
-
 ####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
 The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
 
-As shown in the cell, my classifier classified all the new images with 100% sure.
+As shown in the cell, my classifier classified all the new images with more than 99% sure.
 
 That is probably because I chose too clean images for this problem.

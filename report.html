@@ -11870,7 +11870,7 @@ div#notebook {
 <span class="n">n_test</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="c1"># TODO: What&#39;s the shape of an traffic sign image?</span>
-<span class="n">image_shape</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">image_shape</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
 <span class="c1"># TODO: How many unique classes/labels there are in the dataset.</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -11901,7 +11901,7 @@ div#notebook {
 <pre>Number of training examples = 34799
 Number of training examples = 4410
 Number of testing examples = 12630
-Image data shape = 32
+Image data shape = (32, 32, 3)
 Number of classes = 43
 </pre>
 </div>
@@ -11993,7 +11993,7 @@ Number of classes = 43
 
 
 <div class="output_text output_subarea ">
-<pre>&lt;matplotlib.figure.Figure at 0x7f6d3e31da90&gt;</pre>
+<pre>&lt;matplotlib.figure.Figure at 0x7fccf9afb048&gt;</pre>
 </div>
 
 </div>
@@ -12281,15 +12281,11 @@ ADoTMgEAAADQmZAJAAAAgM7+f4gVTylowQEqAAAAAElFTkSuQmCC
 <span class="c1">### converting to grayscale, etc.</span>
 <span class="c1">### Feel free to use as many code cells as needed.</span>
 <span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">-</span><span class="mi">128</span><span class="o">/</span><span class="mi">128</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">-</span><span class="mi">128</span><span class="p">)</span><span class="o">/</span><span class="mi">128</span>
 
 <span class="n">X_train</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
 <span class="n">X_valid</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">X_valid</span><span class="p">)</span>
 <span class="n">X_test</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">shuffle</span>
-
-<span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12314,63 +12310,13 @@ ADoTMgEAAADQmZAJAAAAgM7+f4gVTylowQEqAAAAAElFTkSuQmCC
 <span class="c1">### Feel free to use as many code cells as needed.</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">350</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ConfigProto</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">gpu_options</span><span class="o">.</span><span class="n">per_process_gpu_memory_fraction</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">60</span>
 <span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">256</span>
 
 <span class="kn">from</span> <span class="nn">tensorflow.contrib.layers</span> <span class="k">import</span> <span class="n">flatten</span>
-
-<span class="k">def</span> <span class="nf">LeNet</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>    
-    <span class="c1"># Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
-    
-    <span class="c1"># SOLUTION: Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.</span>
-    <span class="n">conv1_W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
-    <span class="n">conv1_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
-    <span class="n">conv1</span>   <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">conv1_W</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">conv1_b</span>
-
-    <span class="c1"># SOLUTION: Activation.</span>
-    <span class="n">conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv1</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.</span>
-    <span class="n">conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Layer 2: Convolutional. Output = 10x10x16.</span>
-    <span class="n">conv2_W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
-    <span class="n">conv2_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">16</span><span class="p">))</span>
-    <span class="n">conv2</span>   <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span> <span class="n">conv2_W</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">conv2_b</span>
-    
-    <span class="c1"># SOLUTION: Activation.</span>
-    <span class="n">conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.</span>
-    <span class="n">conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">conv2</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Flatten. Input = 5x5x16. Output = 400.</span>
-    <span class="n">fc0</span>   <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">conv2</span><span class="p">)</span>
-    
-    <span class="c1"># SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.</span>
-    <span class="n">fc1_W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">120</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
-    <span class="n">fc1_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">120</span><span class="p">))</span>
-    <span class="n">fc1</span>   <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">fc0</span><span class="p">,</span> <span class="n">fc1_W</span><span class="p">)</span> <span class="o">+</span> <span class="n">fc1_b</span>
-    
-    <span class="c1"># SOLUTION: Activation.</span>
-    <span class="n">fc1</span>    <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">fc1</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.</span>
-    <span class="n">fc2_W</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">84</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
-    <span class="n">fc2_b</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">84</span><span class="p">))</span>
-    <span class="n">fc2</span>    <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">fc1</span><span class="p">,</span> <span class="n">fc2_W</span><span class="p">)</span> <span class="o">+</span> <span class="n">fc2_b</span>
-    
-    <span class="c1"># SOLUTION: Activation.</span>
-    <span class="n">fc2</span>    <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">fc2</span><span class="p">)</span>
-
-    <span class="c1"># SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.</span>
-    <span class="n">fc3_W</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
-    <span class="n">fc3_b</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_classes</span><span class="p">))</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">fc2</span><span class="p">,</span> <span class="n">fc3_W</span><span class="p">)</span> <span class="o">+</span> <span class="n">fc3_b</span>
-    
-    <span class="k">return</span> <span class="n">logits</span>
 
 <span class="k">def</span> <span class="nf">VGG16</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer</span>
@@ -12443,6 +12389,8 @@ ADoTMgEAAADQmZAJAAAAgM7+f4gVTylowQEqAAAAAElFTkSuQmCC
     
     <span class="c1"># SOLUTION: Activation.</span>
     <span class="n">fc1</span>    <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">fc1</span><span class="p">)</span>
+    
+    <span class="n">fc1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">fc1</span><span class="p">,</span><span class="mf">0.7</span><span class="p">)</span>
 
     <span class="c1"># SOLUTION: Layer 4: Fully Connected. Input = 1024. Output = 256.</span>
     <span class="n">fc2_W</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
@@ -12451,6 +12399,8 @@ ADoTMgEAAADQmZAJAAAAgM7+f4gVTylowQEqAAAAAElFTkSuQmCC
     
     <span class="c1"># SOLUTION: Activation.</span>
     <span class="n">fc2</span>    <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">fc2</span><span class="p">)</span>
+    
+    <span class="n">fc2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">fc2</span><span class="p">,</span><span class="mf">0.7</span><span class="p">)</span>
     
     <span class="c1"># SOLUTION: Layer 5: Fully Connected. Input = 256. Output = n_classes.</span>
     <span class="n">fc3_W</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">),</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">mu</span><span class="p">,</span> <span class="n">stddev</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">))</span>
@@ -12493,18 +12443,20 @@ sets imply underfitting. A high accuracy on the training set but low accuracy on
 <span class="c1">### Once a final model architecture is selected, </span>
 <span class="c1">### the accuracy on the test set should be calculated and reported as well.</span>
 <span class="c1">### Feel free to use as many code cells as needed.</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">shuffle</span>
+
 <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">))</span>
 <span class="n">one_hot_y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
 
-<span class="n">rate</span> <span class="o">=</span> <span class="mf">0.0001</span>
+<span class="n">rate</span> <span class="o">=</span> <span class="mf">0.001</span>
 
-<span class="c1">#logits = LeNet(x)</span>
 <span class="n">logits</span> <span class="o">=</span> <span class="n">VGG16</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">one_hot_y</span><span class="p">,</span> <span class="n">logits</span><span class="o">=</span><span class="n">logits</span><span class="p">)</span>
 <span class="n">loss_operation</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
 <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="c1">#rate = tf.train.exponential_decay(0.001, step, 10, 0.95, staircase=True)</span>
+<span class="n">rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">exponential_decay</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">staircase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">rate</span><span class="p">)</span>
 <span class="n">training_operation</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss_operation</span><span class="p">,</span><span class="n">global_step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
 
@@ -12522,7 +12474,7 @@ sets imply underfitting. A high accuracy on the training set but low accuracy on
         <span class="n">total_accuracy</span> <span class="o">+=</span> <span class="p">(</span><span class="n">accuracy</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_x</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">total_accuracy</span> <span class="o">/</span> <span class="n">num_examples</span>
 
-<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
     <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
     <span class="n">num_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
     
@@ -12540,11 +12492,12 @@ sets imply underfitting. A high accuracy on the training set but low accuracy on
             <span class="n">training_accurary</span>   <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
             <span class="n">validation_accuracy</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">X_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EPOCH </span><span class="si">{}</span><span class="s2"> ...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;learning_rate = </span><span class="si">%f</span><span class="s2">, step = </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rate</span><span class="p">),</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">step</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training   Accuracy = </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">training_accurary</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation Accuracy = </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">validation_accuracy</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">()</span>
         
-        <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s1">&#39;./vgg16_350&#39;</span><span class="p">)</span>
+        <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s1">&#39;./vgg16_exp_60&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model saved&quot;</span><span class="p">)</span>
 </pre></div>
 
@@ -12565,1404 +12518,304 @@ sets imply underfitting. A high accuracy on the training set but low accuracy on
 <pre>Training...
 
 EPOCH 1 ...
-Training   Accuracy = 0.355
-Validation Accuracy = 0.289
+learning_rate = 0.001000, step = 136
+Training   Accuracy = 0.262
+Validation Accuracy = 0.203
 
 EPOCH 2 ...
-Training   Accuracy = 0.482
-Validation Accuracy = 0.366
+learning_rate = 0.001000, step = 272
+Training   Accuracy = 0.553
+Validation Accuracy = 0.449
 
 EPOCH 3 ...
-Training   Accuracy = 0.577
-Validation Accuracy = 0.412
+learning_rate = 0.001000, step = 408
+Training   Accuracy = 0.765
+Validation Accuracy = 0.615
 
 EPOCH 4 ...
-Training   Accuracy = 0.638
-Validation Accuracy = 0.446
+learning_rate = 0.000900, step = 544
+Training   Accuracy = 0.888
+Validation Accuracy = 0.730
 
 EPOCH 5 ...
-Training   Accuracy = 0.693
-Validation Accuracy = 0.474
+learning_rate = 0.000900, step = 680
+Training   Accuracy = 0.931
+Validation Accuracy = 0.774
 
 EPOCH 6 ...
-Training   Accuracy = 0.737
-Validation Accuracy = 0.495
+learning_rate = 0.000900, step = 816
+Training   Accuracy = 0.956
+Validation Accuracy = 0.811
 
 EPOCH 7 ...
-Training   Accuracy = 0.774
-Validation Accuracy = 0.512
+learning_rate = 0.000900, step = 952
+Training   Accuracy = 0.971
+Validation Accuracy = 0.829
 
 EPOCH 8 ...
-Training   Accuracy = 0.803
-Validation Accuracy = 0.525
-
-EPOCH 9 ...
-Training   Accuracy = 0.836
-Validation Accuracy = 0.537
-
-EPOCH 10 ...
-Training   Accuracy = 0.868
-Validation Accuracy = 0.538
-
-EPOCH 11 ...
-Training   Accuracy = 0.876
-Validation Accuracy = 0.546
-
-EPOCH 12 ...
-Training   Accuracy = 0.895
-Validation Accuracy = 0.557
-
-EPOCH 13 ...
-Training   Accuracy = 0.910
-Validation Accuracy = 0.567
-
-EPOCH 14 ...
-Training   Accuracy = 0.909
-Validation Accuracy = 0.563
-
-EPOCH 15 ...
-Training   Accuracy = 0.926
-Validation Accuracy = 0.571
-
-EPOCH 16 ...
-Training   Accuracy = 0.944
-Validation Accuracy = 0.579
-
-EPOCH 17 ...
-Training   Accuracy = 0.941
-Validation Accuracy = 0.583
-
-EPOCH 18 ...
-Training   Accuracy = 0.955
-Validation Accuracy = 0.596
-
-EPOCH 19 ...
-Training   Accuracy = 0.956
-Validation Accuracy = 0.581
-
-EPOCH 20 ...
-Training   Accuracy = 0.952
-Validation Accuracy = 0.590
-
-EPOCH 21 ...
-Training   Accuracy = 0.947
-Validation Accuracy = 0.591
-
-EPOCH 22 ...
-Training   Accuracy = 0.960
-Validation Accuracy = 0.591
-
-EPOCH 23 ...
-Training   Accuracy = 0.971
-Validation Accuracy = 0.603
-
-EPOCH 24 ...
-Training   Accuracy = 0.957
-Validation Accuracy = 0.612
-
-EPOCH 25 ...
-Training   Accuracy = 0.965
-Validation Accuracy = 0.603
-
-EPOCH 26 ...
-Training   Accuracy = 0.959
-Validation Accuracy = 0.607
-
-EPOCH 27 ...
-Training   Accuracy = 0.967
-Validation Accuracy = 0.608
-
-EPOCH 28 ...
-Training   Accuracy = 0.954
-Validation Accuracy = 0.605
-
-EPOCH 29 ...
-Training   Accuracy = 0.969
-Validation Accuracy = 0.619
-
-EPOCH 30 ...
-Training   Accuracy = 0.967
-Validation Accuracy = 0.614
-
-EPOCH 31 ...
-Training   Accuracy = 0.977
-Validation Accuracy = 0.632
-
-EPOCH 32 ...
-Training   Accuracy = 0.972
-Validation Accuracy = 0.623
-
-EPOCH 33 ...
-Training   Accuracy = 0.956
-Validation Accuracy = 0.635
-
-EPOCH 34 ...
-Training   Accuracy = 0.970
-Validation Accuracy = 0.646
-
-EPOCH 35 ...
-Training   Accuracy = 0.979
-Validation Accuracy = 0.648
-
-EPOCH 36 ...
-Training   Accuracy = 0.968
-Validation Accuracy = 0.649
-
-EPOCH 37 ...
-Training   Accuracy = 0.971
-Validation Accuracy = 0.651
-
-EPOCH 38 ...
-Training   Accuracy = 0.975
-Validation Accuracy = 0.662
-
-EPOCH 39 ...
-Training   Accuracy = 0.974
-Validation Accuracy = 0.662
-
-EPOCH 40 ...
-Training   Accuracy = 0.970
-Validation Accuracy = 0.666
-
-EPOCH 41 ...
-Training   Accuracy = 0.967
-Validation Accuracy = 0.664
-
-EPOCH 42 ...
-Training   Accuracy = 0.977
-Validation Accuracy = 0.670
-
-EPOCH 43 ...
-Training   Accuracy = 0.973
-Validation Accuracy = 0.671
-
-EPOCH 44 ...
-Training   Accuracy = 0.983
-Validation Accuracy = 0.688
-
-EPOCH 45 ...
-Training   Accuracy = 0.976
-Validation Accuracy = 0.685
-
-EPOCH 46 ...
-Training   Accuracy = 0.975
-Validation Accuracy = 0.672
-
-EPOCH 47 ...
-Training   Accuracy = 0.977
-Validation Accuracy = 0.678
-
-EPOCH 48 ...
-Training   Accuracy = 0.987
-Validation Accuracy = 0.704
-
-EPOCH 49 ...
-Training   Accuracy = 0.989
-Validation Accuracy = 0.698
-
-EPOCH 50 ...
-Training   Accuracy = 0.984
-Validation Accuracy = 0.690
-
-EPOCH 51 ...
-Training   Accuracy = 0.967
-Validation Accuracy = 0.674
-
-EPOCH 52 ...
-Training   Accuracy = 0.975
-Validation Accuracy = 0.695
-
-EPOCH 53 ...
-Training   Accuracy = 0.970
-Validation Accuracy = 0.678
-
-EPOCH 54 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.704
-
-EPOCH 55 ...
-Training   Accuracy = 0.981
-Validation Accuracy = 0.698
-
-EPOCH 56 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.712
-
-EPOCH 57 ...
-Training   Accuracy = 0.988
-Validation Accuracy = 0.724
-
-EPOCH 58 ...
-Training   Accuracy = 0.981
-Validation Accuracy = 0.714
-
-EPOCH 59 ...
-Training   Accuracy = 0.983
-Validation Accuracy = 0.719
-
-EPOCH 60 ...
-Training   Accuracy = 0.984
-Validation Accuracy = 0.715
-
-EPOCH 61 ...
-Training   Accuracy = 0.989
-Validation Accuracy = 0.732
-
-EPOCH 62 ...
-Training   Accuracy = 0.979
-Validation Accuracy = 0.710
-
-EPOCH 63 ...
-Training   Accuracy = 0.981
-Validation Accuracy = 0.728
-
-EPOCH 64 ...
-Training   Accuracy = 0.989
-Validation Accuracy = 0.748
-
-EPOCH 65 ...
-Training   Accuracy = 0.988
-Validation Accuracy = 0.749
-
-EPOCH 66 ...
-Training   Accuracy = 0.985
-Validation Accuracy = 0.743
-
-EPOCH 67 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.742
-
-EPOCH 68 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.745
-
-EPOCH 69 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.763
-
-EPOCH 70 ...
-Training   Accuracy = 0.980
-Validation Accuracy = 0.748
-
-EPOCH 71 ...
-Training   Accuracy = 0.983
-Validation Accuracy = 0.753
-
-EPOCH 72 ...
-Training   Accuracy = 0.984
-Validation Accuracy = 0.753
-
-EPOCH 73 ...
-Training   Accuracy = 0.984
-Validation Accuracy = 0.753
-
-EPOCH 74 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.766
-
-EPOCH 75 ...
-Training   Accuracy = 0.989
-Validation Accuracy = 0.755
-
-EPOCH 76 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.762
-
-EPOCH 77 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.777
-
-EPOCH 78 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.784
-
-EPOCH 79 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.768
-
-EPOCH 80 ...
-Training   Accuracy = 0.988
-Validation Accuracy = 0.755
-
-EPOCH 81 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.778
-
-EPOCH 82 ...
-Training   Accuracy = 0.991
-Validation Accuracy = 0.793
-
-EPOCH 83 ...
-Training   Accuracy = 0.991
-Validation Accuracy = 0.780
-
-EPOCH 84 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.794
-
-EPOCH 85 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.770
-
-EPOCH 86 ...
-Training   Accuracy = 0.984
-Validation Accuracy = 0.766
-
-EPOCH 87 ...
-Training   Accuracy = 0.975
-Validation Accuracy = 0.741
-
-EPOCH 88 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.805
-
-EPOCH 89 ...
-Training   Accuracy = 0.991
-Validation Accuracy = 0.789
-
-EPOCH 90 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.801
-
-EPOCH 91 ...
-Training   Accuracy = 0.988
-Validation Accuracy = 0.791
-
-EPOCH 92 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.795
-
-EPOCH 93 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.796
-
-EPOCH 94 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.816
-
-EPOCH 95 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.805
-
-EPOCH 96 ...
-Training   Accuracy = 0.988
-Validation Accuracy = 0.784
-
-EPOCH 97 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.807
-
-EPOCH 98 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.805
-
-EPOCH 99 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.805
-
-EPOCH 100 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.813
-
-EPOCH 101 ...
-Training   Accuracy = 0.991
-Validation Accuracy = 0.815
-
-EPOCH 102 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.812
-
-EPOCH 103 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.814
-
-EPOCH 104 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.822
-
-EPOCH 105 ...
-Training   Accuracy = 0.989
-Validation Accuracy = 0.787
-
-EPOCH 106 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.808
-
-EPOCH 107 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.806
-
-EPOCH 108 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.814
-
-EPOCH 109 ...
-Training   Accuracy = 0.987
-Validation Accuracy = 0.785
-
-EPOCH 110 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.824
-
-EPOCH 111 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.842
-
-EPOCH 112 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.844
-
-EPOCH 113 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.816
-
-EPOCH 114 ...
-Training   Accuracy = 0.986
-Validation Accuracy = 0.798
-
-EPOCH 115 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.832
-
-EPOCH 116 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.828
-
-EPOCH 117 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.830
-
-EPOCH 118 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.847
-
-EPOCH 119 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.833
-
-EPOCH 120 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.832
-
-EPOCH 121 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.843
-
-EPOCH 122 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.831
-
-EPOCH 123 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.824
-
-EPOCH 124 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.845
-
-EPOCH 125 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.851
-
-EPOCH 126 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.842
-
-EPOCH 127 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.847
-
-EPOCH 128 ...
-Training   Accuracy = 0.996
+learning_rate = 0.000810, step = 1088
+Training   Accuracy = 0.982
 Validation Accuracy = 0.854
 
-EPOCH 129 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.852
-
-EPOCH 130 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.859
-
-EPOCH 131 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.861
-
-EPOCH 132 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.851
-
-EPOCH 133 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.842
-
-EPOCH 134 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.846
-
-EPOCH 135 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.851
-
-EPOCH 136 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.853
-
-EPOCH 137 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.857
-
-EPOCH 138 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.861
-
-EPOCH 139 ...
-Training   Accuracy = 0.997
+EPOCH 9 ...
+learning_rate = 0.000810, step = 1224
+Training   Accuracy = 0.983
 Validation Accuracy = 0.856
 
-EPOCH 140 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.850
-
-EPOCH 141 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.867
-
-EPOCH 142 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.856
-
-EPOCH 143 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.860
-
-EPOCH 144 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.859
-
-EPOCH 145 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.860
-
-EPOCH 146 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.863
-
-EPOCH 147 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.858
-
-EPOCH 148 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.871
-
-EPOCH 149 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.880
-
-EPOCH 150 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.866
-
-EPOCH 151 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.871
-
-EPOCH 152 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.884
-
-EPOCH 153 ...
-Training   Accuracy = 0.993
-Validation Accuracy = 0.858
-
-EPOCH 154 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.872
-
-EPOCH 155 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.870
-
-EPOCH 156 ...
-Training   Accuracy = 0.994
-Validation Accuracy = 0.845
-
-EPOCH 157 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.883
-
-EPOCH 158 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.866
-
-EPOCH 159 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.876
-
-EPOCH 160 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.878
-
-EPOCH 161 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.871
-
-EPOCH 162 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.876
-
-EPOCH 163 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.879
-
-EPOCH 164 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.884
-
-EPOCH 165 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.860
-
-EPOCH 166 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.878
-
-EPOCH 167 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.866
-
-EPOCH 168 ...
-Training   Accuracy = 0.995
-Validation Accuracy = 0.859
-
-EPOCH 169 ...
-Training   Accuracy = 0.997
+EPOCH 10 ...
+learning_rate = 0.000810, step = 1360
+Training   Accuracy = 0.985
 Validation Accuracy = 0.875
 
-EPOCH 170 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.883
+EPOCH 11 ...
+learning_rate = 0.000810, step = 1496
+Training   Accuracy = 0.988
+Validation Accuracy = 0.872
 
-EPOCH 171 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.873
-
-EPOCH 172 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.870
-
-EPOCH 173 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.885
-
-EPOCH 174 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.886
-
-EPOCH 175 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.877
-
-EPOCH 176 ...
-Training   Accuracy = 0.995
+EPOCH 12 ...
+learning_rate = 0.000729, step = 1632
+Training   Accuracy = 0.992
 Validation Accuracy = 0.868
 
-EPOCH 177 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.899
-
-EPOCH 178 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.911
-
-EPOCH 179 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.893
-
-EPOCH 180 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.896
-
-EPOCH 181 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.887
-
-EPOCH 182 ...
+EPOCH 13 ...
+learning_rate = 0.000729, step = 1768
 Training   Accuracy = 0.993
-Validation Accuracy = 0.857
+Validation Accuracy = 0.871
 
-EPOCH 183 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.904
+EPOCH 14 ...
+learning_rate = 0.000729, step = 1904
+Training   Accuracy = 0.993
+Validation Accuracy = 0.883
 
-EPOCH 184 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.894
+EPOCH 15 ...
+learning_rate = 0.000656, step = 2040
+Training   Accuracy = 0.993
+Validation Accuracy = 0.885
 
-EPOCH 185 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.904
+EPOCH 16 ...
+learning_rate = 0.000656, step = 2176
+Training   Accuracy = 0.992
+Validation Accuracy = 0.885
 
-EPOCH 186 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.896
+EPOCH 17 ...
+learning_rate = 0.000656, step = 2312
+Training   Accuracy = 0.995
+Validation Accuracy = 0.897
 
-EPOCH 187 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.899
-
-EPOCH 188 ...
-Training   Accuracy = 0.996
-Validation Accuracy = 0.888
-
-EPOCH 189 ...
-Training   Accuracy = 0.999
+EPOCH 18 ...
+learning_rate = 0.000656, step = 2448
+Training   Accuracy = 0.994
 Validation Accuracy = 0.898
 
-EPOCH 190 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.898
-
-EPOCH 191 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.900
-
-EPOCH 192 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.894
-
-EPOCH 193 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.891
-
-EPOCH 194 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.898
-
-EPOCH 195 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.909
-
-EPOCH 196 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.892
-
-EPOCH 197 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.888
-
-EPOCH 198 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.900
-
-EPOCH 199 ...
-Training   Accuracy = 0.999
+EPOCH 19 ...
+learning_rate = 0.000590, step = 2584
+Training   Accuracy = 0.995
 Validation Accuracy = 0.889
 
-EPOCH 200 ...
+EPOCH 20 ...
+learning_rate = 0.000590, step = 2720
+Training   Accuracy = 0.992
+Validation Accuracy = 0.902
+
+EPOCH 21 ...
+learning_rate = 0.000590, step = 2856
 Training   Accuracy = 0.997
-Validation Accuracy = 0.893
+Validation Accuracy = 0.913
 
-EPOCH 201 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.893
-
-EPOCH 202 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.899
-
-EPOCH 203 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.895
-
-EPOCH 204 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.903
-
-EPOCH 205 ...
+EPOCH 22 ...
+learning_rate = 0.000590, step = 2992
 Training   Accuracy = 0.995
-Validation Accuracy = 0.896
-
-EPOCH 206 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.912
-
-EPOCH 207 ...
-Training   Accuracy = 0.999
 Validation Accuracy = 0.909
 
-EPOCH 208 ...
+EPOCH 23 ...
+learning_rate = 0.000531, step = 3128
+Training   Accuracy = 0.996
+Validation Accuracy = 0.913
+
+EPOCH 24 ...
+learning_rate = 0.000531, step = 3264
+Training   Accuracy = 0.994
+Validation Accuracy = 0.911
+
+EPOCH 25 ...
+learning_rate = 0.000531, step = 3400
+Training   Accuracy = 0.996
+Validation Accuracy = 0.913
+
+EPOCH 26 ...
+learning_rate = 0.000478, step = 3536
+Training   Accuracy = 0.993
+Validation Accuracy = 0.905
+
+EPOCH 27 ...
+learning_rate = 0.000478, step = 3672
 Training   Accuracy = 0.997
-Validation Accuracy = 0.893
+Validation Accuracy = 0.915
 
-EPOCH 209 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.909
-
-EPOCH 210 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.912
-
-EPOCH 211 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.919
-
-EPOCH 212 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.918
-
-EPOCH 213 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.907
-
-EPOCH 214 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.922
-
-EPOCH 215 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.909
-
-EPOCH 216 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.906
-
-EPOCH 217 ...
+EPOCH 28 ...
+learning_rate = 0.000478, step = 3808
 Training   Accuracy = 0.998
 Validation Accuracy = 0.913
 
-EPOCH 218 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.902
-
-EPOCH 219 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.919
-
-EPOCH 220 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.916
-
-EPOCH 221 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.920
-
-EPOCH 222 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.918
-
-EPOCH 223 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.929
-
-EPOCH 224 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.919
-
-EPOCH 225 ...
-Training   Accuracy = 1.000
+EPOCH 29 ...
+learning_rate = 0.000478, step = 3944
+Training   Accuracy = 0.997
 Validation Accuracy = 0.921
 
-EPOCH 226 ...
+EPOCH 30 ...
+learning_rate = 0.000430, step = 4080
+Training   Accuracy = 0.998
+Validation Accuracy = 0.925
+
+EPOCH 31 ...
+learning_rate = 0.000430, step = 4216
+Training   Accuracy = 0.998
+Validation Accuracy = 0.920
+
+EPOCH 32 ...
+learning_rate = 0.000430, step = 4352
+Training   Accuracy = 0.997
+Validation Accuracy = 0.914
+
+EPOCH 33 ...
+learning_rate = 0.000430, step = 4488
 Training   Accuracy = 0.996
 Validation Accuracy = 0.909
 
-EPOCH 227 ...
+EPOCH 34 ...
+learning_rate = 0.000387, step = 4624
 Training   Accuracy = 0.995
-Validation Accuracy = 0.908
+Validation Accuracy = 0.897
 
-EPOCH 228 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.909
-
-EPOCH 229 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.924
-
-EPOCH 230 ...
+EPOCH 35 ...
+learning_rate = 0.000387, step = 4760
 Training   Accuracy = 0.998
-Validation Accuracy = 0.917
-
-EPOCH 231 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.922
-
-EPOCH 232 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.912
-
-EPOCH 233 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.900
-
-EPOCH 234 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.917
-
-EPOCH 235 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.922
-
-EPOCH 236 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.920
-
-EPOCH 237 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.917
-
-EPOCH 238 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.923
-
-EPOCH 239 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.927
-
-EPOCH 240 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.930
-
-EPOCH 241 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.924
-
-EPOCH 242 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.916
-
-EPOCH 243 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.924
-
-EPOCH 244 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.914
-
-EPOCH 245 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.905
-
-EPOCH 246 ...
-Training   Accuracy = 0.992
-Validation Accuracy = 0.890
-
-EPOCH 247 ...
-Training   Accuracy = 0.999
 Validation Accuracy = 0.918
 
-EPOCH 248 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.927
-
-EPOCH 249 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.914
-
-EPOCH 250 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.929
-
-EPOCH 251 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.932
-
-EPOCH 252 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.925
-
-EPOCH 253 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.929
-
-EPOCH 254 ...
+EPOCH 36 ...
+learning_rate = 0.000387, step = 4896
 Training   Accuracy = 0.997
-Validation Accuracy = 0.910
+Validation Accuracy = 0.923
 
-EPOCH 255 ...
+EPOCH 37 ...
+learning_rate = 0.000349, step = 5032
 Training   Accuracy = 0.998
-Validation Accuracy = 0.913
+Validation Accuracy = 0.924
 
-EPOCH 256 ...
+EPOCH 38 ...
+learning_rate = 0.000349, step = 5168
 Training   Accuracy = 0.998
-Validation Accuracy = 0.917
-
-EPOCH 257 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.921
-
-EPOCH 258 ...
-Training   Accuracy = 1.000
 Validation Accuracy = 0.933
 
-EPOCH 259 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.927
+EPOCH 39 ...
+learning_rate = 0.000349, step = 5304
+Training   Accuracy = 0.999
+Validation Accuracy = 0.931
 
-EPOCH 260 ...
-Training   Accuracy = 1.000
+EPOCH 40 ...
+learning_rate = 0.000349, step = 5440
+Training   Accuracy = 0.999
 Validation Accuracy = 0.932
 
-EPOCH 261 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.910
-
-EPOCH 262 ...
+EPOCH 41 ...
+learning_rate = 0.000314, step = 5576
 Training   Accuracy = 0.999
 Validation Accuracy = 0.928
 
-EPOCH 263 ...
-Training   Accuracy = 0.997
-Validation Accuracy = 0.901
-
-EPOCH 264 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.920
-
-EPOCH 265 ...
+EPOCH 42 ...
+learning_rate = 0.000314, step = 5712
 Training   Accuracy = 0.998
-Validation Accuracy = 0.915
-
-EPOCH 266 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.925
-
-EPOCH 267 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.943
-
-EPOCH 268 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.942
-
-EPOCH 269 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.943
-
-EPOCH 270 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.946
-
-EPOCH 271 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.919
-
-EPOCH 272 ...
-Training   Accuracy = 0.998
-Validation Accuracy = 0.923
-
-EPOCH 273 ...
-Training   Accuracy = 0.999
 Validation Accuracy = 0.929
 
-EPOCH 274 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.932
-
-EPOCH 275 ...
+EPOCH 43 ...
+learning_rate = 0.000314, step = 5848
 Training   Accuracy = 0.999
-Validation Accuracy = 0.926
+Validation Accuracy = 0.924
 
-EPOCH 276 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.932
-
-EPOCH 277 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.934
-
-EPOCH 278 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.932
-
-EPOCH 279 ...
+EPOCH 44 ...
+learning_rate = 0.000314, step = 5984
 Training   Accuracy = 0.999
+Validation Accuracy = 0.930
+
+EPOCH 45 ...
+learning_rate = 0.000282, step = 6120
+Training   Accuracy = 0.999
+Validation Accuracy = 0.927
+
+EPOCH 46 ...
+learning_rate = 0.000282, step = 6256
+Training   Accuracy = 0.998
 Validation Accuracy = 0.922
 
-EPOCH 280 ...
+EPOCH 47 ...
+learning_rate = 0.000282, step = 6392
+Training   Accuracy = 0.999
+Validation Accuracy = 0.931
+
+EPOCH 48 ...
+learning_rate = 0.000254, step = 6528
 Training   Accuracy = 0.997
-Validation Accuracy = 0.920
+Validation Accuracy = 0.928
 
-EPOCH 281 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.921
-
-EPOCH 282 ...
+EPOCH 49 ...
+learning_rate = 0.000254, step = 6664
 Training   Accuracy = 0.999
 Validation Accuracy = 0.929
 
-EPOCH 283 ...
+EPOCH 50 ...
+learning_rate = 0.000254, step = 6800
 Training   Accuracy = 0.999
-Validation Accuracy = 0.940
+Validation Accuracy = 0.937
 
-EPOCH 284 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.946
-
-EPOCH 285 ...
+EPOCH 51 ...
+learning_rate = 0.000254, step = 6936
 Training   Accuracy = 0.999
 Validation Accuracy = 0.929
 
-EPOCH 286 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.941
-
-EPOCH 287 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.944
-
-EPOCH 288 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.942
-
-EPOCH 289 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.929
-
-EPOCH 290 ...
+EPOCH 52 ...
+learning_rate = 0.000229, step = 7072
 Training   Accuracy = 0.998
-Validation Accuracy = 0.919
+Validation Accuracy = 0.933
 
-EPOCH 291 ...
+EPOCH 53 ...
+learning_rate = 0.000229, step = 7208
+Training   Accuracy = 0.999
+Validation Accuracy = 0.933
+
+EPOCH 54 ...
+learning_rate = 0.000229, step = 7344
 Training   Accuracy = 0.999
 Validation Accuracy = 0.942
 
-EPOCH 292 ...
+EPOCH 55 ...
+learning_rate = 0.000229, step = 7480
+Training   Accuracy = 0.998
+Validation Accuracy = 0.924
+
+EPOCH 56 ...
+learning_rate = 0.000206, step = 7616
+Training   Accuracy = 1.000
+Validation Accuracy = 0.942
+
+EPOCH 57 ...
+learning_rate = 0.000206, step = 7752
+Training   Accuracy = 1.000
+Validation Accuracy = 0.943
+
+EPOCH 58 ...
+learning_rate = 0.000206, step = 7888
+Training   Accuracy = 1.000
+Validation Accuracy = 0.945
+
+EPOCH 59 ...
+learning_rate = 0.000185, step = 8024
+Training   Accuracy = 1.000
+Validation Accuracy = 0.942
+
+EPOCH 60 ...
+learning_rate = 0.000185, step = 8160
 Training   Accuracy = 0.999
-Validation Accuracy = 0.936
-
-EPOCH 293 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.935
-
-EPOCH 294 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.941
-
-EPOCH 295 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.932
-
-EPOCH 296 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.941
-
-EPOCH 297 ...
-Training   Accuracy = 0.999
-Validation Accuracy = 0.932
-
-EPOCH 298 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.934
-
-EPOCH 299 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.946
-
-EPOCH 300 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.948
-
-EPOCH 301 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.946
-
-EPOCH 302 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 303 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 304 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 305 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 306 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 307 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 308 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 309 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 310 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 311 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 312 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 313 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 314 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 315 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 316 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 317 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 318 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 319 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 320 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 321 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 322 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 323 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 324 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 325 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 326 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 327 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 328 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 329 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 330 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 331 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 332 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 333 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 334 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 335 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 336 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 337 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 338 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 339 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 340 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 341 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 342 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 343 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 344 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 345 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 346 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 347 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 348 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 349 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
-
-EPOCH 350 ...
-Training   Accuracy = 1.000
-Validation Accuracy = 0.945
+Validation Accuracy = 0.943
 
 Model saved
 </pre>
@@ -14021,7 +12874,7 @@ Model saved
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>13
+<pre>12
 </pre>
 </div>
 </div>
@@ -14035,88 +12888,83 @@ Model saved
 
 <div class="output_png output_subarea ">
 <img src="data:image/png;base64,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
-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
+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
+CNEmdoT4PxsVG7yrPNoOAAAAAElFTkSuQmCC
 "
 >
 </div>
@@ -14143,7 +12991,7 @@ Wt3ZCVrd2Qla3dkJWt3ZCVrd2Qla3dkJWt3ZCdr/AnePozJXaA9LAAAAAElFTkSuQmCC
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### Run the predictions here and use the model to output the prediction for each image.</span>
 <span class="c1">### Make sure to pre-process the images with the same pre-processing pipeline used earlier.</span>
 <span class="c1">### Feel free to use as many code cells as needed.</span>
-<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
     <span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
 
     <span class="n">test_accuracy</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
@@ -14164,7 +13012,7 @@ Wt3ZCVrd2Qla3dkJWt3ZCVrd2Qla3dkJWt3ZCdr/AnePozJXaA9LAAAAAElFTkSuQmCC
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Test Accuracy = 0.938
+<pre>Test Accuracy = 0.935
 </pre>
 </div>
 </div>
@@ -14198,9 +13046,11 @@ Wt3ZCVrd2Qla3dkJWt3ZCVrd2Qla3dkJWt3ZCdr/AnePozJXaA9LAAAAAElFTkSuQmCC
     <span class="n">X_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 
 <span class="n">X_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_new</span><span class="p">)</span>
+<span class="n">X_new</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">X_new</span><span class="p">)</span>
+
 <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">25</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">14</span><span class="p">])</span>
 
-<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
     <span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
 
     <span class="n">new_accuracy</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">X_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
@@ -14282,14 +13132,11 @@ a = np.array([[ 0.24879643,  0.07032244,  0.12641572,  0.34763842,  0.07893497,
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. </span>
 <span class="c1">### Feel free to use as many code cells as needed.</span>
 
-<span class="n">topK_logits_operation</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">sm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
 <span class="n">topK_sm_operation</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
     <span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
-    <span class="n">topK</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">topK_logits_operation</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">X_new</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y_new</span><span class="p">})</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">topK</span><span class="p">)</span>
     <span class="n">topK</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">topK_sm_operation</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">X_new</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y_new</span><span class="p">})</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">topK</span><span class="p">)</span>
 </pre></div>
@@ -14308,29 +13155,20 @@ a = np.array([[ 0.24879643,  0.07032244,  0.12641572,  0.34763842,  0.07893497,
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>TopKV2(values=array([[ 3472.75683594,  1851.98217773,  1533.64587402,  1212.25439453,
-         1110.60192871],
-       [ 3249.44091797,  2347.31958008,  1988.40087891,  1606.89855957,
-         1603.22790527],
-       [ 3726.78198242,  1874.00610352,  1732.17102051,  1705.60705566,
-         1255.57202148],
-       [ 4376.03662109,  2898.24584961,  2386.96679688,  2186.49414062,
-         1666.6217041 ],
-       [ 3565.29638672,  1788.28613281,  1504.88330078,  1457.77160645,
-          875.78326416]], dtype=float32), indices=array([[25, 18, 20, 28, 11],
-       [32,  6, 41, 11, 42],
-       [17, 15,  1, 22, 24],
-       [ 1,  2,  5,  8,  0],
-       [14,  1, 29,  3,  5]], dtype=int32))
-TopKV2(values=array([[ 1.,  0.,  0.,  0.,  0.],
-       [ 1.,  0.,  0.,  0.,  0.],
-       [ 1.,  0.,  0.,  0.,  0.],
-       [ 1.,  0.,  0.,  0.,  0.],
-       [ 1.,  0.,  0.,  0.,  0.]], dtype=float32), indices=array([[25,  0,  1,  2,  3],
-       [32,  0,  1,  2,  3],
+<pre>TopKV2(values=array([[  1.00000000e+00,   7.79930211e-13,   6.78436311e-13,
+          1.60881711e-13,   5.38243156e-14],
+       [  1.00000000e+00,   9.92266323e-25,   2.22952907e-26,
+          1.41848561e-31,   9.86725592e-32],
+       [  1.00000000e+00,   0.00000000e+00,   0.00000000e+00,
+          0.00000000e+00,   0.00000000e+00],
+       [  9.99929547e-01,   6.95596391e-05,   9.39127233e-07,
+          2.58396096e-08,   1.24352983e-09],
+       [  1.00000000e+00,   7.95082844e-31,   2.70261341e-33,
+          6.70131376e-34,   3.89384019e-34]], dtype=float32), indices=array([[25, 22, 20, 28, 35],
+       [32, 41, 15, 40, 38],
        [17,  0,  1,  2,  3],
-       [ 1,  0,  2,  3,  4],
-       [14,  0,  1,  2,  3]], dtype=int32))
+       [ 1,  0,  4,  2, 20],
+       [14,  1, 15, 25, 11]], dtype=int32))
 </pre>
 </div>
 </div>
