@@ -122,7 +122,7 @@ I designed a network which is a deeper but basic network without techniques such
 
 Then I found that it realizes an accuracy high enough to pass this project.
 
-I also implemented decaying learning rate with tf.train.exponential_decay() to realize faster convergence and higher accuracy and achieved faster learning time (upto x10).
+I also implemented decaying learning rate with tf.train.exponential_decay() to realize upto x10 faster convergence and higher accuracy.
 
 ###Test a Model on New Images
 
